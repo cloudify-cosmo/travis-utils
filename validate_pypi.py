@@ -49,7 +49,7 @@ def main():
                         default=glob('dist/*.tar.gz'))
     parser.add_argument('-u', '--url',
                         nargs=1,
-                        default=['https://testpypi.python.org/'])
+                        default=['https://pypi.python.org/'])
     parser.add_argument('-v', '--verbose', action='store_true')
     args = parser.parse_args()
 
