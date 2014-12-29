@@ -37,6 +37,15 @@ def get_pypi_hash(baseurl):
     return md5_digest
 
 
+def get_pypi_url(branch):
+    if branch == 'pypi-release':
+        return 'https://pypi.python.org/'
+    elif branch == 'pypi-test':
+        return 'https://testpypi.python.org/'
+    else:
+        raise ValueError('Unknown branch')
+
+
 def main():
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
@@ -47,9 +56,15 @@ def main():
     parser.add_argument('-f', '--file',
                         nargs=1,
                         default=glob('dist/*.tar.gz'))
-    parser.add_argument('-u', '--url',
-                        nargs=1,
-                        default=['https://pypi.python.org/'])
+
+    urlgroup = parser.add_argument_group('PyPi repository url')
+    urlgroup.add_argument('-u', '--url',
+                          nargs=1,
+                          default=['https://pypi.python.org/'])
+
+    branchgroup = parser.add_argument_group('PyPi repository url by branch')
+    branchgroup.add_argument('-b', '--branch',
+                             nargs=1)
     parser.add_argument('-v', '--verbose', action='store_true')
     args = parser.parse_args()
 
@@ -57,7 +72,12 @@ def main():
 
     try:
         file_hash = md5check(args.file[0])
-        pypi_hash = get_pypi_hash(args.url[0])
+        if args.branch:
+            baseurl = get_pypi_url(args.branch[0])
+        else:
+            baseurl = args.url
+        logger.info('pypi url: {}'.format(baseurl))
+        pypi_hash = get_pypi_hash(baseurl)
     except (IndexError, IOError):
         logger.error('File not found')
         exit(1)
